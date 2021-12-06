@@ -1,0 +1,16 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Share a post{% endblock %}
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            {{ message|safe }}
+        {% endfor %}
+    {% endif %}
+    <h1>Share "{{ post.title }}" by e-mail</h1>
+    <form method="post">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <input type="submit" value="Send e-mail">
+    </form>
+{% endblock %}
