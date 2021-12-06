@@ -1,5 +1,6 @@
 from django.core.mail import send_mail
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.contrib.postgres.search import TrigramSimilarity
 
 from .models import Post
 
@@ -16,8 +17,9 @@ def get_search_results(query):
     search_query = SearchQuery(query)
     return (
         Post.published.annotate(
-            search=search_vector, rank=SearchRank(search_vector, search_query)
+            search=search_vector, rank=SearchRank(search_vector, search_query),
+            similarity=TrigramSimilarity("title", query),
         )
-        .filter(search=search_query)
-        .order_by("-rank")
+        .filter(search=search_query, similarity_gt=0.1)
+        .order_by("-rank", "-similarity")
     )
