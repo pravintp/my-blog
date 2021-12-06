@@ -3,5 +3,6 @@ django-environ==0.8.1
 djagno-taggit==1.2.0
 markdown==3.2.1
 pre-commit==2.15.0
+psycopg2-binary==2.8.4
 PyYAML==6.0
 toml==0.10.2
