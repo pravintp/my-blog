@@ -9,6 +9,15 @@ class PublishedManager(models.Manager):
         return super(PublishedManager, self).get_queryset().filter(status="published")
 
 
+class ActiveCommentManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super(ActiveCommentManager, self)
+            .get_queryset()
+            .filter(comments__active=True)
+        )
+
+
 class Post(models.Model):
     STATUS_CHOICES = (
         ("draft", "Draft"),
@@ -27,6 +36,7 @@ class Post(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     objects = models.Manager()
     published = PublishedManager()
+    active_comments = ActiveCommentManager()
 
     class Meta:
         ordering = ("-publish",)
@@ -39,3 +49,24 @@ class Post(models.Model):
             "blog:post_detail",
             args=[self.publish.year, self.publish.month, self.publish.day, self.slug],
         )
+
+    def add_comment(self, comment):
+        new_comment = comment.save(commit=False)
+        new_comment.post = self
+        new_comment.save()
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    name = models.CharField(max_length=80)
+    email = models.EmailField()
+    body = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ("created",)
+
+    def __str__(self):
+        return f"Comment by {self.name} on {self.post}"
