@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -51,6 +52,16 @@ class Post(models.Model):
             "blog:post_detail",
             args=[self.publish.year, self.publish.month, self.publish.day, self.slug],
         )
+
+    def get_top_four_similar_posts(self):
+        post_tags_ids = self.tags.values_list("id", flat=True)
+        similar_posts = (
+            Post.published.filter(tags__in=post_tags_ids)
+            .exclude(id=self.pk)
+            .annotate(same_tags=Count("tags"))
+            .order_by("-same_tags", "-publish")[:4]
+        )
+        return similar_posts
 
 
 class Comment(models.Model):
