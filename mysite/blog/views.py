@@ -3,7 +3,7 @@ from django.views.generic import ListView
 from django.contrib import messages
 
 from .models import Post
-from .forms import EmailPostForm
+from .forms import EmailPostForm, CommentForm
 from .utils import share_post_by_email
 
 
@@ -23,7 +23,27 @@ def post_detail(request, year, month, day, post):
         publish__month=month,
         publish__day=day,
     )
-    return render(request, "blog/post/detail.html", {"post": post})
+    if request.method == "POST":
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            comment_form.save()
+            return render(
+                request,
+                "blog/post/detail.html",
+                {
+                    "post": post,
+                    "comment_form": comment_form,
+                },
+            )
+
+    return render(
+        request,
+        "blog/post/detail.html",
+        {
+            "post": post,
+            "comment_form": CommentForm(initial={"post": post.id}),
+        },
+    )
 
 
 def post_share(request, post_id):
