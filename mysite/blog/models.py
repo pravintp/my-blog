@@ -50,11 +50,6 @@ class Post(models.Model):
             args=[self.publish.year, self.publish.month, self.publish.day, self.slug],
         )
 
-    def add_comment(self, comment):
-        new_comment = comment.save(commit=False)
-        new_comment.post = self
-        new_comment.save()
-
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")

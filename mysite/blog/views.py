@@ -26,7 +26,7 @@ def post_detail(request, year, month, day, post):
     if request.method == "POST":
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
-            post.add_comment(comment_form)
+            comment_form.save()
             return render(
                 request,
                 "blog/post/detail.html",
@@ -36,15 +36,12 @@ def post_detail(request, year, month, day, post):
                 },
             )
 
-    else:
-        comment_form = CommentForm()
-
     return render(
         request,
         "blog/post/detail.html",
         {
             "post": post,
-            "comment_form": comment_form,
+            "comment_form": CommentForm(initial={"post": post.id}),
         },
     )
 
