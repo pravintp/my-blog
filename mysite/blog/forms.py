@@ -15,3 +15,7 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ("name", "email", "body", "post")
         widgets = {"post": forms.HiddenInput()}
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField()

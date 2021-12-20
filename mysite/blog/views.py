@@ -3,8 +3,8 @@ from django.views.generic import ListView
 from django.contrib import messages
 
 from .models import Post
-from .forms import EmailPostForm, CommentForm
-from .utils import share_post_by_email
+from .forms import EmailPostForm, CommentForm, SearchForm
+from .utils import share_post_by_email, get_search_results
 
 
 class PostListView(ListView):
@@ -67,3 +67,17 @@ def post_share(request, post_id):
 
     form = EmailPostForm()
     return render(request, "blog/post/share.html", {"post": post, "form": form})
+
+
+def post_search(request):
+    form = SearchForm()
+    if "query" in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            results = get_search_results(form.cleaned_data["query"])
+            return render(
+                request,
+                "blog/post/search.html",
+                {"form": form, "results": results},
+            )
+    return render(request, "blog/post/search.html", {"form": form})
